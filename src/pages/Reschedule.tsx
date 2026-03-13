@@ -1,45 +1,39 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-export default function Booking() {
+export default function Reschedule() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // bookingId
+  const [booking, setBooking] = useState<any>(null);
   const [pro, setPro] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [description, setDescription] = useState("");
 
-  const [selectedDate, setSelectedDate] = useState<number | null>(
-    new Date().getDate(),
-  );
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       if (!id) return;
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-          setUserProfile(profile);
-        }
-
-        const { data, error } = await supabase
-          .from("professionals")
-          .select("*")
+        // Fetch booking details
+        const { data: bookingData, error: bookingError } = await supabase
+          .from("bookings")
+          .select("*, professionals(*)")
           .eq("id", id)
           .single();
-        if (error) throw error;
-        setPro(data);
+
+        if (bookingError) throw bookingError;
+        setBooking(bookingData);
+        setPro(bookingData.professionals);
+
+        // Pre-parse current date if possible (optional)
+        // const parts = bookingData.date.split(", ");
+        // ... set defaults ...
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching booking:", error);
       } finally {
         setLoading(false);
       }
@@ -61,28 +55,35 @@ export default function Booking() {
   const times = getTimesForDate(selectedDate);
 
   const handleConfirm = async () => {
-    if (!selectedDate || !selectedTime || !pro) return;
+    if (!selectedDate || !selectedTime || !booking) return;
     
     setSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado.");
 
-      const { error } = await supabase.from("bookings").insert({
-        professional_id: pro.id,
-        user_id: user.id,
-        date: `${selectedDate}/${new Date().getMonth() + 1}, ${selectedTime}`,
-        status: "Pendente",
-        address: userProfile?.address || "Endereço não informado",
-        price: `R$ ${pro.price_min}`,
-        description: description
-      });
+      // Check if the user is the client or the professional
+      const isClient = user.id === booking.user_id;
+      
+      const { error } = await supabase
+        .from("bookings")
+        .update({
+          date: `${selectedDate}/${new Date().getMonth() + 1}, ${selectedTime}`,
+          status: isClient ? "Pendente" : booking.status // If client reschedules, reset to Pendente
+        })
+        .eq("id", id);
 
       if (error) throw error;
-      navigate("/app/success");
+      
+      // Navigate back based on context
+      if (isClient) {
+        navigate("/app/bookings-list");
+      } else {
+        navigate("/app/provider-agenda");
+      }
     } catch (error: any) {
-      console.error("Error saving booking:", error);
-      alert(error.message || "Erro ao realizar agendamento. Tente novamente.");
+      console.error("Error updating booking:", error);
+      alert(error.message || "Erro ao remarcar. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -96,28 +97,27 @@ export default function Booking() {
     );
   }
 
-  if (!pro) return <div className="screen">Profissional não encontrado.</div>;
+  if (!booking || !pro) return <div className="screen">Agendamento não encontrado.</div>;
 
   return (
     <div className="screen fade-in">
       <div className="profile-header" style={{ paddingBottom: "16px" }}>
         <div className="back-header" onClick={() => navigate(-1)} style={{ cursor: "pointer" }}>
-          <ArrowLeft size={18} /> Voltar para o Perfil
+          <ArrowLeft size={18} /> Voltar
         </div>
-        <div className="booking-title">Agendar Serviço</div>
+        <div className="booking-title">Remarcar Serviço</div>
         <div className="booking-sub">
-          Escolha a data e o horário para a visita.
+          Escolha uma nova data e horário.
         </div>
       </div>
 
       <div className="profile-section" style={{ paddingTop: "16px" }}>
         <div
-          className="booking-pro-mini"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "14px",
-            background: "var(--dark3)",
+            background: "var(--dark)",
             border: "1px solid var(--card-border)",
             borderRadius: "16px",
             padding: "16px",
@@ -125,7 +125,6 @@ export default function Booking() {
           }}
         >
           <div
-            className="pro-avatar"
             style={{
               width: "48px",
               height: "48px",
@@ -141,19 +140,21 @@ export default function Booking() {
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{pro.name}</div>
-            <div style={{ fontSize: "0.75rem", color: "var(--tx2)" }}>{pro.specialty}</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--tx2)", display: "flex", alignItems: "center", gap: "4px" }}>
+              Atual: <Calendar size={12} /> {booking.date}
+            </div>
           </div>
         </div>
 
         <div className="form-group" style={{ marginBottom: "24px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
             <label className="form-label" style={{ fontSize: "0.78rem", color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
-              Data da visita
+              Nova data
             </label>
             <div style={{ fontSize: "0.8rem", color: "var(--orange)", fontWeight: 600 }}>Novembro, 2026</div>
           </div>
 
-          <div className="calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px", padding: "16px", background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "16px" }}>
+          <div className="calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px", padding: "16px", background: "var(--dark)", border: "1px solid var(--card-border)", borderRadius: "16px" }}>
             {["D", "S", "T", "Q", "Q", "S", "S"].map((day, i) => (
               <div key={`header-${i}`} style={{ textAlign: "center", fontSize: "0.7rem", color: "var(--tx3)", fontWeight: 600 }}>{day}</div>
             ))}
@@ -170,23 +171,18 @@ export default function Booking() {
           </div>
         </div>
 
-        <div className="form-group" style={{ marginBottom: "20px" }}>
-          <label className="form-label" style={{ fontSize: "0.78rem", color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px", display: "block" }}>Horário</label>
+        <div className="form-group" style={{ marginBottom: "40px" }}>
+          <label className="form-label" style={{ fontSize: "0.78rem", color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px", display: "block" }}>Novo Horário</label>
           <div className="times-row" style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {times.map((time) => {
               const isOccupied = time.includes("(Ocupado)");
               const displayTime = time.replace(" (Ocupado)", "");
               const isSelected = selectedTime === displayTime && !isOccupied;
               return (
-                <div key={time} className={`time-chip ${isSelected ? "selected" : ""}`} onClick={() => !isOccupied && setSelectedTime(displayTime)} style={{ padding: "10px 16px", borderRadius: "12px", border: isSelected ? "1px solid var(--orange)" : "1px solid var(--card-border)", background: isSelected ? "rgba(255,92,26,0.15)" : "var(--dark3)", color: isSelected ? "var(--orange)" : "inherit", fontSize: "0.85rem", cursor: isOccupied ? "not-allowed" : "pointer", opacity: isOccupied ? 0.35 : 1 }}>{time}</div>
+                <div key={time} className={`time-chip ${isSelected ? "selected" : ""}`} onClick={() => !isOccupied && setSelectedTime(displayTime)} style={{ padding: "10px 16px", borderRadius: "12px", border: isSelected ? "1px solid var(--orange)" : "1px solid var(--card-border)", background: isSelected ? "rgba(255,92,26,0.15)" : "var(--dark)", color: isSelected ? "var(--orange)" : "var(--text)", fontSize: "0.85rem", cursor: isOccupied ? "not-allowed" : "pointer", opacity: isOccupied ? 0.35 : 1 }}>{time}</div>
               );
             })}
           </div>
-        </div>
-
-        <div className="form-group" style={{ marginBottom: "20px" }}>
-          <label className="form-label" style={{ fontSize: "0.78rem", color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px", display: "block" }}>Descreva o que precisa (opcional)</label>
-          <textarea className="form-textarea" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Torneira da pia pingando muito, precisa trocar o reparo." style={{ width: "100%", background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "14px", padding: "14px", color: "var(--text)", fontFamily: "inherit", fontSize: "0.9rem", resize: "none", outline: "none", minHeight: "90px" }}></textarea>
         </div>
       </div>
 
@@ -213,7 +209,7 @@ export default function Booking() {
           }}
         >
           {submitting && <Loader2 size={18} className="animate-spin" />}
-          {submitting ? "Confirmando..." : "Confirmar Agendamento"}
+          {submitting ? "Atualizando..." : "Confirmar Alteração"}
         </button>
       </div>
     </div>

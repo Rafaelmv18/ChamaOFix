@@ -17,9 +17,9 @@ export default function LandingNav() {
           <a href="#depoimentos">Depoimentos</a>
         </li>
         <li>
-          <a href="#prestadores" className="nav-cta">
+          <Link to="/app/register-provider" className="nav-cta">
             Sou prestador
-          </a>
+          </Link>
         </li>
       </ul>
       <Link

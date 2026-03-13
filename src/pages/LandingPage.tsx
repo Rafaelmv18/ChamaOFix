@@ -26,9 +26,9 @@ export default function LandingPage() {
           <Link to="/app" className="btn-primary">
             🔍 Encontrar profissional
           </Link>
-          <a href="#prestadores" className="btn-secondary">
+          <Link to="/app/register-provider" className="btn-secondary">
             Sou prestador de serviço →
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -226,7 +226,7 @@ export default function LandingPage() {
                 <div
                   className="test-name"
                   style={{
-                    fontFamily: "Syne, sans-serif",
+                    
                     fontWeight: 700,
                     fontSize: "0.9rem",
                   }}
@@ -293,7 +293,7 @@ export default function LandingPage() {
                 <div
                   className="test-name"
                   style={{
-                    fontFamily: "Syne, sans-serif",
+                    
                     fontWeight: 700,
                     fontSize: "0.9rem",
                   }}
@@ -360,7 +360,7 @@ export default function LandingPage() {
                 <div
                   className="test-name"
                   style={{
-                    fontFamily: "Syne, sans-serif",
+                    
                     fontWeight: 700,
                     fontSize: "0.9rem",
                   }}

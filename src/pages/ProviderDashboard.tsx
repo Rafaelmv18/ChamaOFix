@@ -1,322 +1,154 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Loader2, TrendingUp, CheckCircle, Star } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function ProviderDashboard() {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      name: "Maria Silva",
-      status: "novo",
-      desc: "Vazamento na pia da cozinha. Preciso de conserto urgente!",
-      time: "Amanhã 11:30",
-      dist: "1.5km",
-    },
-  ]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [proProfile, setProProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    earnings: 0,
+    completed: 0,
+    rating: 0
+  });
 
-  const handleAction = (id: number, action: "accept" | "decline") => {
-    setRequests(
-      requests.map((req) => {
-        if (req.id === id) {
-          return { ...req, status: action === "accept" ? "confirmed" : "done" };
-        }
-        return req;
-      }),
-    );
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // 1. Get the professional record associated with this user
+        const { data: proData, error: proError } = await supabase
+          .from("professionals")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        if (proError) throw proError;
+        setProProfile(proData);
+
+        // 2. Fetch bookings for this professional, joining with profiles for client info
+        const { data: bookingsData, error: bookingsError } = await supabase
+          .from("bookings")
+          .select("*, client:profiles(full_name, username)")
+          .eq("professional_id", proData.id)
+          .order("created_at", { ascending: false });
+
+        if (bookingsError) throw bookingsError;
+
+        setRequests(bookingsData || []);
+
+        // 3. Calculate stats
+        const completed = bookingsData?.filter(b => b.status === "Finalizado" || b.status === "Concluído") || [];
+        const earnings = completed.reduce((acc, b) => {
+          const val = parseInt(b.price.replace(/\D/g, ""));
+          return acc + (isNaN(val) ? 0 : val);
+        }, 0);
+
+        setStats({
+          earnings,
+          completed: completed.length,
+          rating: proData.rating || 0
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  const handleAction = async (id: string, action: "Aceito" | "Recusado") => {
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .update({ status: action })
+        .eq("id", id);
+      
+      if (error) throw error;
+
+      setRequests(requests.map(req => 
+        req.id === id ? { ...req, status: action } : req
+      ));
+    } catch (error) {
+      console.error("Error updating booking:", error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="screen fade-in" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Loader2 className="animate-spin" color="var(--orange)" size={32} />
+      </div>
+    );
+  }
 
   return (
     <div className="screen fade-in">
       <div className="dash-header" style={{ padding: "50px 24px 24px" }}>
-        <div
-          className="dash-title"
-          style={{
-            fontFamily: "Syne, sans-serif",
-            fontSize: "1.4rem",
-            fontWeight: 800,
-          }}
-        >
+        <div className="dash-title" style={{ fontSize: "1.4rem", fontWeight: 800 }}>
           Painel do Profissional
         </div>
-        <div
-          className="dash-sub"
-          style={{ fontSize: "0.85rem", color: "var(--tx2)", marginTop: "4px" }}
-        >
-          Resumo de desempenho e solicitações
+        <div className="dash-sub" style={{ fontSize: "0.85rem", color: "var(--tx2)", marginTop: "4px" }}>
+          Olá, {proProfile?.name.split(" ")[0] || "Profissional"}! Veja o resumo do seu desempenho.
         </div>
       </div>
 
-      <div
-        className="earnings-card"
-        style={{
-          margin: "0 24px 20px",
-          background: "linear-gradient(135deg,#1a0800,#2d1200)",
-          border: "1px solid rgba(255,92,26,0.25)",
-          borderRadius: "20px",
-          padding: "24px",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          className="earn-label"
-          style={{
-            fontSize: "0.75rem",
-            color: "var(--tx3)",
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-          }}
-        >
+      <div className="earnings-card" style={{ margin: "0 24px 20px", background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "20px", padding: "24px", position: "relative", overflow: "hidden" }}>
+        <div className="earn-label" style={{ fontSize: "0.75rem", color: "var(--tx2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           Ganhos do Mês
         </div>
-        <div
-          className="earn-val"
-          style={{
-            fontFamily: "Syne, sans-serif",
-            fontSize: "2.2rem",
-            fontWeight: 800,
-            color: "var(--orange)",
-            margin: "6px 0",
-          }}
-        >
-          R$ 4.850
+        <div className="earn-val" style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--orange)", margin: "6px 0" }}>
+          R$ {stats.earnings.toLocaleString("pt-BR")}
         </div>
-        <div
-          className="earn-change"
-          style={{ fontSize: "0.8rem", color: "var(--green)" }}
-        >
-          ↑ 12% em relação ao mês anterior
+        <div className="earn-change" style={{ fontSize: "0.8rem", color: "var(--green)", display: "flex", alignItems: "center", gap: "4px" }}>
+          <TrendingUp size={14} /> Total acumulado de serviços finalizados
         </div>
       </div>
 
-      <div
-        className="dash-stats"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "12px",
-          margin: "0 24px 20px",
-        }}
-      >
-        <div
-          className="dash-stat-card"
-          style={{
-            background: "var(--dark3)",
-            border: "1px solid var(--card-border)",
-            borderRadius: "16px",
-            padding: "16px",
-          }}
-        >
-          <div
-            className="ds-icon"
-            style={{ fontSize: "1.4rem", marginBottom: "8px" }}
-          >
-            ✅
-          </div>
-          <div
-            className="ds-val"
-            style={{
-              fontFamily: "Syne, sans-serif",
-              fontSize: "1.4rem",
-              fontWeight: 800,
-            }}
-          >
-            32
-          </div>
-          <div
-            className="ds-label"
-            style={{
-              fontSize: "0.72rem",
-              color: "var(--tx3)",
-              marginTop: "2px",
-            }}
-          >
-            Serviços feitos
-          </div>
+      <div className="dash-stats" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", margin: "0 24px 20px" }}>
+        <div className="dash-stat-card" style={{ background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "16px", padding: "16px" }}>
+          <CheckCircle size={20} color="var(--green)" style={{ marginBottom: "8px" }} />
+          <div className="ds-val" style={{ fontSize: "1.4rem", fontWeight: 800 }}>{stats.completed}</div>
+          <div className="ds-label" style={{ fontSize: "0.72rem", color: "var(--tx3)", marginTop: "2px" }}>Serviços feitos</div>
         </div>
-        <div
-          className="dash-stat-card"
-          style={{
-            background: "var(--dark3)",
-            border: "1px solid var(--card-border)",
-            borderRadius: "16px",
-            padding: "16px",
-          }}
-        >
-          <div
-            className="ds-icon"
-            style={{ fontSize: "1.4rem", marginBottom: "8px" }}
-          >
-            ⭐️
-          </div>
-          <div
-            className="ds-val"
-            style={{
-              fontFamily: "Syne, sans-serif",
-              fontSize: "1.4rem",
-              fontWeight: 800,
-            }}
-          >
-            4.9
-          </div>
-          <div
-            className="ds-label"
-            style={{
-              fontSize: "0.72rem",
-              color: "var(--tx3)",
-              marginTop: "2px",
-            }}
-          >
-            Avaliação média
-          </div>
+        <div className="dash-stat-card" style={{ background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "16px", padding: "16px" }}>
+          <Star size={20} color="var(--orange)" style={{ marginBottom: "8px" }} />
+          <div className="ds-val" style={{ fontSize: "1.4rem", fontWeight: 800 }}>{stats.rating}</div>
+          <div className="ds-label" style={{ fontSize: "0.72rem", color: "var(--tx3)", marginTop: "2px" }}>Avaliação média</div>
         </div>
       </div>
 
       <div className="requests-list" style={{ padding: "0 24px 100px" }}>
-        <h3
-          style={{ fontFamily: "Syne", fontSize: "1rem", marginBottom: "12px" }}
-        >
-          Novas Solicitações
-        </h3>
+        <h3 style={{ fontSize: "1rem", marginBottom: "12px", fontWeight: 700 }}>Solicitações Recentes</h3>
 
-        {requests.map((req) => (
-          <div
-            key={req.id}
-            className="req-item"
-            style={{
-              background: "var(--dark3)",
-              border: "1px solid var(--card-border)",
-              borderRadius: "16px",
-              padding: "16px",
-              marginBottom: "12px",
-              opacity: req.status === "done" ? 0.6 : 1,
-            }}
-          >
-            <div
-              className="req-top"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: "8px",
-              }}
-            >
-              <div
-                className="req-client"
-                style={{
-                  fontFamily: "Syne, sans-serif",
-                  fontWeight: 700,
-                  fontSize: "0.9rem",
-                }}
-              >
-                {req.name}
+        {requests.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px", color: "var(--tx3)" }}>Nenhuma solicitação no momento.</div>
+        ) : (
+          requests.map((req) => (
+            <div key={req.id} className="req-item" style={{ background: "var(--dark3)", border: "1px solid var(--card-border)", borderRadius: "16px", padding: "16px", marginBottom: "12px", opacity: req.status === "Recusado" ? 0.6 : 1 }}>
+              <div className="req-top" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                <div className="req-client" style={{ fontWeight: 700, fontSize: "0.9rem" }}>Cliente: {req.client?.full_name || req.client?.username || "Desconhecido"}</div>
+                <div className={`req-status`} style={{ fontSize: "0.68rem", fontWeight: 700, padding: "4px 10px", borderRadius: "100px", background: req.status === "Aceito" || req.status === "Confirmado" ? "rgba(34,197,94,0.15)" : req.status === "Pendente" ? "rgba(255,152,0,0.15)" : "rgba(255,255,255,0.08)", color: req.status === "Aceito" || req.status === "Confirmado" ? "var(--green)" : req.status === "Pendente" ? "var(--orange)" : "var(--tx3)" }}>{req.status}</div>
               </div>
-              <div
-                className={`req-status ${req.status}`}
-                style={{
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  padding: "4px 10px",
-                  borderRadius: "100px",
-                  background:
-                    req.status === "confirmed"
-                      ? "rgba(34,197,94,0.15)"
-                      : req.status === "done"
-                        ? "rgba(255,255,255,0.08)"
-                        : "rgba(59,130,246,0.15)",
-                  color:
-                    req.status === "confirmed"
-                      ? "var(--green)"
-                      : req.status === "done"
-                        ? "var(--tx3)"
-                        : "var(--blue)",
-                }}
-              >
-                {req.status === "novo"
-                  ? "Novo"
-                  : req.status === "confirmed"
-                    ? "Confirmado"
-                    : "Recusado"}
+              <div className="req-desc" style={{ fontSize: "0.8rem", color: "var(--tx2)", marginBottom: "10px" }}>{req.description || "Sem descrição adicional."}</div>
+              <div className="req-meta" style={{ display: "flex", gap: "10px" }}>
+                <span className="tag" style={{ background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "100px", padding: "3px 10px", fontSize: "0.7rem", color: "var(--tx2)" }}>{req.date}</span>
+                <span className="tag" style={{ background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "100px", padding: "3px 10px", fontSize: "0.7rem", color: "var(--tx2)" }}>{req.price}</span>
               </div>
-            </div>
-            <div
-              className="req-desc"
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--tx2)",
-                marginBottom: "10px",
-              }}
-            >
-              {req.desc}
-            </div>
-            <div className="req-meta" style={{ display: "flex", gap: "10px" }}>
-              <span
-                className="tag"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: "100px",
-                  padding: "3px 10px",
-                  fontSize: "0.7rem",
-                  color: "var(--tx2)",
-                }}
-              >
-                {req.time}
-              </span>
-              <span
-                className="tag"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: "100px",
-                  padding: "3px 10px",
-                  fontSize: "0.7rem",
-                  color: "var(--tx2)",
-                }}
-              >
-                {req.dist}
-              </span>
-            </div>
 
-            {req.status === "novo" && (
-              <div
-                className="req-actions"
-                style={{ display: "flex", gap: "8px", marginTop: "10px" }}
-              >
-                <button
-                  className="btn-decline"
-                  onClick={() => handleAction(req.id, "decline")}
-                  style={{
-                    flex: 1,
-                    background: "rgba(239,68,68,0.1)",
-                    color: "var(--red)",
-                    border: "1px solid rgba(239,68,68,0.2)",
-                    borderRadius: "10px",
-                    padding: "8px",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Recusar
-                </button>
-                <button
-                  className="btn-accept"
-                  onClick={() => handleAction(req.id, "accept")}
-                  style={{
-                    flex: 1,
-                    background: "rgba(34,197,94,0.15)",
-                    color: "var(--green)",
-                    border: "1px solid rgba(34,197,94,0.3)",
-                    borderRadius: "10px",
-                    padding: "8px",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Aceitar
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+              {req.status === "Pendente" && (
+                <div className="req-actions" style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                  <button onClick={() => handleAction(req.id, "Recusado")} style={{ flex: 1, background: "var(--dark2)", color: "var(--muted)", border: "1px solid var(--card-border)", borderRadius: "10px", padding: "8px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}>Recusar</button>
+                  <button onClick={() => handleAction(req.id, "Aceito")} style={{ flex: 1, background: "rgba(34,197,94,0.15)", color: "var(--green)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "10px", padding: "8px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}>Aceitar</button>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

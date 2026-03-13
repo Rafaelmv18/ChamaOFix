@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0d0d0d 100%);
+  background: linear-gradient(135deg, #f7eddf 0%, #fbf8f2 50%, #f7eddf 100%);
   gap: 40px;
   flex-wrap: wrap;
   padding: 20px;
@@ -30,15 +30,14 @@
 .phone {
   width: 390px;
   height: 844px;
-  background: var(--dk);
+  background: var(--background);
   border-radius: 50px;
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border: 8px solid #221a15;
   overflow: hidden;
   position: relative;
   box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 40px 100px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -105,7 +104,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--dk);
+  background: var(--background);
   transition:
     transform 0.4s cubic-bezier(0.32, 0, 0.2, 1),
     opacity 0.4s ease;
@@ -121,7 +120,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(12, 12, 12, 0.95);
+  background: rgba(251, 248, 242, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--card-border);
   display: flex;
@@ -203,7 +202,7 @@
   margin-bottom: 4px;
 }
 .greeting-name {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -238,7 +237,7 @@
 }
 
 .section-title {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -261,6 +260,11 @@
   padding: 0 24px 4px;
   overflow-x: auto;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.cats-scroll::-webkit-scrollbar {
+  display: none;
 }
 .cat-pill {
   display: flex;
@@ -303,6 +307,11 @@
   padding: 0 24px 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pros-scroll::-webkit-scrollbar {
+  display: none;
 }
 .pro-card-h {
   flex-shrink: 0;
@@ -374,8 +383,9 @@
 
 .emergency-banner {
   margin: 16px 24px;
-  background: linear-gradient(135deg, #2d0a0a, #3d1010);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: white;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-left: 4px solid var(--red);
   border-radius: 16px;
   padding: 16px 20px;
   display: flex;
@@ -391,10 +401,10 @@
   font-size: 1.8rem;
 }
 .em-text h4 {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-weight: 700;
   font-size: 0.9rem;
-  color: #ff6b6b;
+  color: var(--red);
   margin-bottom: 2px;
 }
 .em-text p {
@@ -408,7 +418,7 @@
 }
 
 .pro-card-v {
-  background: var(--dark3);
+  background: var(--dark);
   border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 18px;
@@ -539,6 +549,11 @@
   padding: 12px 24px;
   overflow-x: auto;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.filter-row::-webkit-scrollbar {
+  display: none;
 }
 .filter-chip {
   flex-shrink: 0;
@@ -617,10 +632,10 @@
   flex: 1;
 }
 .profile-name {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1.4rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .profile-spec {
   color: var(--orange);
@@ -636,7 +651,7 @@
   text-align: center;
 }
 .pstat-val {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1.1rem;
   font-weight: 800;
   color: var(--text);
@@ -650,7 +665,7 @@
   padding: 0 24px 24px;
 }
 .profile-section-title {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--tx3);
@@ -692,7 +707,7 @@
 .book-bar {
   position: sticky;
   bottom: 0;
-  background: rgba(12, 12, 12, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--card-border);
   padding: 16px 24px 32px;
@@ -705,7 +720,7 @@
   color: var(--tx3);
 }
 .price-val {
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--orange);
@@ -717,7 +732,7 @@
   border: none;
   border-radius: 14px;
   padding: 16px;
-  font-family: "Syne", sans-serif;
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   User,
@@ -6,10 +7,51 @@ import {
   CreditCard,
   HelpCircle,
   LogOut,
+  Loader2,
+  Briefcase,
 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function UserProfile() {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserEmail(user.email || "");
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+          setProfile(profileData);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  if (loading) {
+    return (
+      <div className="screen fade-in" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Loader2 className="animate-spin" color="var(--orange)" size={32} />
+      </div>
+    );
+  }
 
   return (
     <div className="screen fade-in">
@@ -37,20 +79,18 @@ export default function UserProfile() {
               fontSize: "1.8rem",
             }}
           >
-            👨
+            {profile?.full_name ? profile.full_name[0].toUpperCase() : "👤"}
           </div>
           <div>
             <div
               style={{
-                fontFamily: "Syne, sans-serif",
-                fontSize: "1.4rem",
                 fontWeight: 700,
               }}
             >
-              João Oliveira
+              {profile?.full_name || profile?.username || "Usuário"}
             </div>
             <div style={{ fontSize: "0.85rem", color: "var(--tx2)" }}>
-              joao.oliveira@email.com
+              {userEmail}
             </div>
           </div>
         </div>
@@ -115,6 +155,23 @@ export default function UserProfile() {
             <Settings size={18} color="var(--orange)" />
             <span style={{ fontSize: "0.95rem" }}>Configurações do App</span>
           </div>
+          {profile?.user_type === "client" && (
+            <div
+              onClick={() => navigate("/app/register-provider")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px",
+                borderTop: "1px solid var(--card-border)",
+                cursor: "pointer",
+                background: "rgba(255,92,26,0.05)"
+              }}
+            >
+              <Briefcase size={18} color="var(--orange)" />
+              <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>Seja um Prestador</span>
+            </div>
+          )}
         </div>
 
         <div
@@ -152,7 +209,7 @@ export default function UserProfile() {
         </div>
 
         <button
-          onClick={() => navigate("/")}
+          onClick={handleLogout}
           style={{
             width: "100%",
             display: "flex",

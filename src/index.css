@@ -10,20 +10,21 @@
 :root {
   --orange: #ff5c1a;
   --orange-light: #ff7a3d;
-  --orange-glow: rgba(255, 92, 26, 0.25);
-  --dark: #0e0e0e;
-  --dark2: #161616;
-  --dark3: #1f1f1f;
-  --dark4: #2a2a2a;
-  --text: #f0ede8;
-  --muted: #888;
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --card-border: rgba(255, 255, 255, 0.08);
+  --orange-glow: rgba(255, 92, 26, 0.15);
+  --background: #ffffff;
+  --dark: #f9fafb;
+  --dark2: #f3f4f6;
+  --dark3: #e5e7eb;
+  --dark4: #d1d5db;
+  --text: #111827;
+  --muted: #6b7280;
+  --card-bg: rgba(0, 0, 0, 0.01);
+  --card-border: rgba(0, 0, 0, 0.12);
 
   /* MVP specific */
-  --tx2: #a8a39c;
-  --tx3: #6b6560;
-  --green: #22c55e;
+  --tx2: #4b5563;
+  --tx3: #9ca3af;
+  --green: #10b981;
   --blue: #3b82f6;
   --red: #ef4444;
   --yellow: #f59e0b;
@@ -34,8 +35,8 @@ html {
 }
 
 body {
-  font-family: "DM Sans", sans-serif;
-  background: var(--dark);
+  font-family: "Inter", "DM Sans", sans-serif;
+  background: var(--background);
   color: var(--text);
   overflow-x: hidden;
 }

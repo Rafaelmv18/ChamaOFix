@@ -46,7 +46,7 @@ export default function ProviderEarnings() {
           </div>
           <div
             style={{
-              fontFamily: "Syne, sans-serif",
+              
               fontSize: "2.4rem",
               fontWeight: 800,
               color: "var(--orange)",
@@ -97,7 +97,7 @@ export default function ProviderEarnings() {
             </div>
             <div
               style={{
-                fontFamily: "Syne, sans-serif",
+                
                 fontSize: "1.2rem",
                 fontWeight: 800,
               }}
@@ -127,7 +127,7 @@ export default function ProviderEarnings() {
             </div>
             <div
               style={{
-                fontFamily: "Syne, sans-serif",
+                
                 fontSize: "1.2rem",
                 fontWeight: 800,
               }}

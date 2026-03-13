@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 interface ProCardProps {
+  id: string | number;
   name: string;
   spec: string;
   price: string;
@@ -14,6 +15,7 @@ interface ProCardProps {
 }
 
 export default function ProCard({
+  id,
   name,
   spec,
   price,
@@ -29,7 +31,7 @@ export default function ProCard({
 
   if (orientation === "horizontal") {
     return (
-      <div className="pro-card-h" onClick={() => navigate("/app/profile")}>
+      <div className="pro-card-h" onClick={() => navigate(`/app/profile/${id}`)}>
         <div className="pro-card-img" style={{ background: bgGradient }}>
           {icon}
           {isOnline && <div className="pro-badge">Online</div>}
@@ -54,7 +56,7 @@ export default function ProCard({
   }
 
   return (
-    <div className="pro-card-v" onClick={() => navigate("/app/profile")}>
+    <div className="pro-card-v" onClick={() => navigate(`/app/profile/${id}`)}>
       <div className="pro-avatar" style={{ background: bgGradient }}>
         {icon}
         {isOnline && <div className="online-dot"></div>}

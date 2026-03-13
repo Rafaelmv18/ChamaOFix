@@ -38,7 +38,6 @@ export default function Success() {
       <div
         className="success-title"
         style={{
-          fontFamily: "Syne, sans-serif",
           fontSize: "1.8rem",
           fontWeight: 800,
           marginBottom: "8px",
