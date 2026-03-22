@@ -52,8 +52,8 @@ export default function ProviderDashboard() {
         setRequests(bookingsData || []);
 
         // 3. Calculate stats
-        const completed = bookingsData?.filter(b => b.status === "Finalizado" || b.status === "Concluído") || [];
-        const earnings = completed.reduce((acc, b) => {
+        const completed = bookingsData?.filter((b: any) => b.status === "Finalizado" || b.status === "Concluído") || [];
+        const earnings = completed.reduce((acc: number, b: any) => {
           const val = parseInt(b.price.replace(/\D/g, ""));
           return acc + (isNaN(val) ? 0 : val);
         }, 0);

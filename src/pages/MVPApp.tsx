@@ -33,7 +33,7 @@ export default function MVPApp() {
   const isAuthPage = location.pathname.includes("/login") || location.pathname.includes("/register");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
       setSession(session);
       setLoading(false);
       if (!session && !isAuthPage) {
@@ -43,7 +43,7 @@ export default function MVPApp() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setSession(session);
       if (!session && !isAuthPage) {
         navigate("/app/login");

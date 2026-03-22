@@ -41,7 +41,7 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
     syncModeWithProfile();
 
     // Listen for auth changes to re-sync
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       if (session) {
         syncModeWithProfile();
       } else {
