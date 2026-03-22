@@ -129,6 +129,22 @@ export default function MobileAdmin() {
     }
   };
 
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!window.confirm(`Tem certeza que deseja remover a categoria "${name}"?`)) return;
+    try {
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Erro ao remover a categoria. Ela pode estar em uso por profissionais.");
+    }
+  };
+
   const filteredProfessionals = professionals.filter(p => p.status === filter);
 
   return (
@@ -191,7 +207,10 @@ export default function MobileAdmin() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               {categories.map(cat => (
-                <div key={cat.id} style={{ background: "var(--dark3)", borderRadius: "12px", border: "1px solid var(--card-border)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                <div key={cat.id} style={{ background: "var(--dark3)", borderRadius: "12px", border: "1px solid var(--card-border)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", position: "relative" }}>
+                  <button onClick={() => handleDeleteCategory(cat.id, cat.name)} style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(239, 68, 68, 0.1)", border: "none", color: "var(--red)", width: "24px", height: "24px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                    <XCircle size={14} />
+                  </button>
                   <div style={{ fontSize: "2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {cat.icon}
                   </div>
