@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import { useAppMode } from "../context/AppModeContext";
 
 export default function RegisterProvider() {
-  const { setMode } = useAppMode();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -91,8 +89,7 @@ export default function RegisterProvider() {
       if (profileError) throw profileError;
 
       // 3. Success!
-      setMode("provider");
-      alert("Parabéns! Agora você é um prestador ChamaOFix.");
+      alert("Cadastro recebido! Seu perfil está em análise pelo Administrador. Você será notificado quando aprovado.");
       navigate("/app");
     } catch (error: any) {
       console.error("Error registering provider:", error);

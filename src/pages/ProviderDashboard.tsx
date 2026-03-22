@@ -23,10 +23,22 @@ export default function ProviderDashboard() {
           .from("professionals")
           .select("*")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
-        if (proError) throw proError;
+        if (proError && proError.code !== "PGRST116") throw proError;
+        
+        if (!proData) {
+          setProProfile({ status: "not_found" });
+          setLoading(false);
+          return;
+        }
+
         setProProfile(proData);
+
+        if (proData.status !== "approved") {
+           setLoading(false);
+           return;
+        }
 
         // 2. Fetch bookings for this professional, joining with profiles for client info
         const { data: bookingsData, error: bookingsError } = await supabase
@@ -82,6 +94,45 @@ export default function ProviderDashboard() {
     return (
       <div className="screen fade-in" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Loader2 className="animate-spin" color="var(--orange)" size={32} />
+      </div>
+    );
+  }
+
+  if (proProfile?.status === "pending") {
+    return (
+      <div className="screen fade-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", textAlign: "center", height: "100vh" }}>
+        <div style={{ padding: "24px", background: "rgba(255, 152, 0, 0.1)", borderRadius: "100px", marginBottom: "20px" }}>
+           <Loader2 className="animate-spin" color="var(--orange)" size={48} />
+        </div>
+        <h2 style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: "12px" }}>Perfil em Análise</h2>
+        <p style={{ color: "var(--tx2)", fontSize: "0.95rem", lineHeight: "1.5" }}>
+          Recebemos o seu cadastro! Nossa equipe está conferindo as informações. Você será notificado assim que puder começar a atender.
+        </p>
+      </div>
+    );
+  }
+
+  if (proProfile?.status === "rejected") {
+    return (
+      <div className="screen fade-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", textAlign: "center", height: "100vh" }}>
+        <div style={{ padding: "24px", background: "rgba(239, 68, 68, 0.1)", borderRadius: "100px", marginBottom: "20px", color: "var(--red)" }}>
+           ❌
+        </div>
+        <h2 style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: "12px" }}>Cadastro Recusado</h2>
+        <p style={{ color: "var(--tx2)", fontSize: "0.95rem", lineHeight: "1.5" }}>
+          Infelizmente não pudemos aprovar o seu perfil profissional no momento. Entre em contato com o suporte para mais detalhes.
+        </p>
+      </div>
+    );
+  }
+
+  if (proProfile?.status === "not_found") {
+    return (
+      <div className="screen fade-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", textAlign: "center", height: "100vh" }}>
+        <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "12px" }}>Acesso Negado</h2>
+        <p style={{ color: "var(--tx2)", fontSize: "0.95rem", lineHeight: "1.5" }}>
+          Você ainda não é um prestador. Cadastre-se pelo menu principal para acessar esta área.
+        </p>
       </div>
     );
   }

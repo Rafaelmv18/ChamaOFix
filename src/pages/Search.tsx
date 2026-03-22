@@ -29,7 +29,7 @@ export default function Search() {
       try {
         const [catRes, proRes] = await Promise.all([
           supabase.from("categories").select("*").order("name"),
-          supabase.from("professionals").select("*, categories(name)")
+          supabase.from("professionals").select("*, categories(name)").eq("status", "approved")
         ]);
         
         if (catRes.error) throw catRes.error;

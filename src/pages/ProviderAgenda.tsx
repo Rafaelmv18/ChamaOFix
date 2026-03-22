@@ -17,11 +17,23 @@ export default function ProviderAgenda() {
 
   const [mySchedule, setMySchedule] = useState<any[]>([]);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [bookingClient, setBookingClient] = useState("");
+  const [bookingEmail, setBookingEmail] = useState("");
   const [bookingDesc, setBookingDesc] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
   const [proId, setProId] = useState("");
+
+  const maskDate = (value: string) => {
+    const raw = value.replace(/\D/g, "");
+    if (raw.length <= 2) return raw;
+    return `${raw.slice(0, 2)}/${raw.slice(2, 4)}`;
+  };
+
+  const maskTime = (value: string) => {
+    const raw = value.replace(/\D/g, "");
+    if (raw.length <= 2) return raw;
+    return `${raw.slice(0, 2)}:${raw.slice(2, 4)}`;
+  };
 
   const fetchAgenda = async () => {
     try {
@@ -53,14 +65,21 @@ export default function ProviderAgenda() {
   };
 
   const handleManualBooking = async () => {
-    if (!bookingClient || !bookingDate || !bookingTime) return;
+    if (!bookingEmail || !bookingDate || !bookingTime) return;
     try {
+      // Try to find a profile with this email to link user_id
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", bookingEmail)
+        .single();
+
       const { error } = await supabase
         .from("bookings")
         .insert({
           professional_id: proId,
-          user_id: null, // Manual bookings might not link to registered users via ID initially, or use a "placeholder" logic
-          description: `${bookingDesc} (Cliente: ${bookingClient})`,
+          user_id: profile?.id || null, 
+          description: `${bookingDesc} (E-mail: ${bookingEmail})`,
           date: `${bookingDate}, ${bookingTime}`,
           status: "Confirmado",
           price: "A combinar",
@@ -69,7 +88,7 @@ export default function ProviderAgenda() {
       
       if (error) throw error;
       setIsBookingModalOpen(false);
-      setBookingClient("");
+      setBookingEmail("");
       setBookingDesc("");
       fetchAgenda();
     } catch (error) {
@@ -312,24 +331,24 @@ export default function ProviderAgenda() {
             <h3 style={{ marginBottom: "20px" }}>Novo Agendamento</h3>
             
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ fontSize: "0.8rem", color: "var(--tx3)", display: "block", marginBottom: "8px" }}>Nome do Cliente</label>
-              <input type="text" value={bookingClient} onChange={(e) => setBookingClient(e.target.value)} placeholder="Nome completo" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#fff" }} />
+              <label style={{ fontSize: "0.8rem", color: "var(--tx3)", display: "block", marginBottom: "8px" }}>E-mail do Cliente</label>
+              <input type="text" value={bookingEmail} onChange={(e) => setBookingEmail(e.target.value)} placeholder="cliente@email.com" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#000" }} />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
               <div>
                 <label style={{ fontSize: "0.8rem", color: "var(--tx3)", display: "block", marginBottom: "8px" }}>Data</label>
-                <input type="text" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} placeholder="Ex: 12/12" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#fff" }} />
+                <input type="text" value={bookingDate} onChange={(e) => setBookingDate(maskDate(e.target.value))} placeholder="Ex: 12/12" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#000" }} maxLength={5} />
               </div>
               <div>
                 <label style={{ fontSize: "0.8rem", color: "var(--tx3)", display: "block", marginBottom: "8px" }}>Hora</label>
-                <input type="text" value={bookingTime} onChange={(e) => setBookingTime(e.target.value)} placeholder="Ex: 09:00" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#fff" }} />
+                <input type="text" value={bookingTime} onChange={(e) => setBookingTime(maskTime(e.target.value))} placeholder="Ex: 09:00" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#000" }} maxLength={5} />
               </div>
             </div>
 
             <div style={{ marginBottom: "24px" }}>
               <label style={{ fontSize: "0.8rem", color: "var(--tx3)", display: "block", marginBottom: "8px" }}>Serviço / Nota</label>
-              <textarea value={bookingDesc} onChange={(e) => setBookingDesc(e.target.value)} placeholder="Ex: Pintura sala" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#fff", minHeight: "80px", fontFamily: "inherit" }} />
+              <textarea value={bookingDesc} onChange={(e) => setBookingDesc(e.target.value)} placeholder="Ex: Pintura sala" style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--dark2)", border: "1px solid var(--card-border)", color: "#000", minHeight: "80px", fontFamily: "inherit" }} />
             </div>
 
             <div style={{ display: "flex", gap: "12px" }}>

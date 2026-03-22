@@ -15,6 +15,7 @@ import UserProfile from "./UserProfile";
 import Reschedule from "./Reschedule";
 import Categories from "./Categories";
 import RegisterProvider from "./RegisterProvider";
+import MobileAdmin from "./MobileAdmin";
 import ProviderNav from "../components/ProviderNav";
 import Login from "./Auth/Login";
 import Register from "./Auth/Register";
@@ -130,6 +131,7 @@ export default function MVPApp() {
           <Route path="reschedule/:id" element={<Reschedule />} />
           <Route path="categories" element={<Categories />} />
           <Route path="register-provider" element={<RegisterProvider />} />
+          <Route path="admin-mobile" element={<MobileAdmin />} />
           <Route path="provider-agenda" element={<ProviderAgenda />} />
           <Route path="provider-earnings" element={<ProviderEarnings />} />
         </Routes>

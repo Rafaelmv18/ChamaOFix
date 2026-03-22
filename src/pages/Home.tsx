@@ -34,6 +34,7 @@ export default function Home() {
         const { data: proData, error: proError } = await supabase
           .from("professionals")
           .select("*")
+          .eq("status", "approved")
           .order("rating", { ascending: false });
 
         if (catError) throw catError;

@@ -9,6 +9,7 @@ import {
   LogOut,
   Loader2,
   Briefcase,
+  Shield,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -155,7 +156,23 @@ export default function UserProfile() {
             <Settings size={18} color="var(--orange)" />
             <span style={{ fontSize: "0.95rem" }}>Configurações do App</span>
           </div>
-          {profile?.user_type === "client" && (
+          {profile?.is_admin ? (
+            <div
+              onClick={() => navigate("/app/admin-mobile")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px",
+                borderTop: "1px solid var(--card-border)",
+                cursor: "pointer",
+                background: "rgba(59, 130, 246, 0.08)"
+              }}
+            >
+              <Shield size={18} color="#3b82f6" />
+              <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#3b82f6" }}>Painel de Administração</span>
+            </div>
+          ) : profile?.user_type === "client" ? (
             <div
               onClick={() => navigate("/app/register-provider")}
               style={{
@@ -171,7 +188,7 @@ export default function UserProfile() {
               <Briefcase size={18} color="var(--orange)" />
               <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>Seja um Prestador</span>
             </div>
-          )}
+          ) : null}
         </div>
 
         <div
