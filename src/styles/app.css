@@ -1,67 +1,26 @@
 /* APP FRAME & CONTAINER CSS */
 .app-container {
   display: flex;
-  align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f7eddf 0%, #fbf8f2 50%, #f7eddf 100%);
-  gap: 40px;
-  flex-wrap: wrap;
-  padding: 20px;
-}
-.app-container::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse at 30% 50%,
-      rgba(255, 92, 26, 0.06) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse at 70% 50%,
-      rgba(59, 130, 246, 0.04) 0%,
-      transparent 60%
-    );
-  pointer-events: none;
+  background: var(--background);
 }
 
 .phone {
-  width: 390px;
-  height: 844px;
+  width: 100%;
+  max-width: 480px; /* Keep it mobile-proportioned but responsive */
+  min-height: 100vh;
   background: var(--background);
-  border-radius: 50px;
-  border: 8px solid #221a15;
-  overflow: hidden;
   position: relative;
-  box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.05); /* subtle shadow to separate from background if screen > 480px */
 }
 
-/* RESPONSIVE HACK FOR WEB ADAPTATION */
-@media (min-width: 900px) {
-  /* On larger screens, the phone transforms into a desktop-like responsive layout, or stays as mobile view depending on design. For MVP we'll allow it to stay as a simulated phone or expand if needed, but since it's mobile first, let's keep it mostly fluid for web if it spans full screen, or center it. The prompt says "adapte para web, mas deixe responsivo para app". Let's make .phone take 100% width and height on phones, and act like a web app on desktop.*/
-  .app-container {
-    padding: 0;
-    align-items: stretch;
-    background: var(--dk);
-  }
+@media (max-width: 480px) {
   .phone {
-    width: 100%;
-    height: 100vh;
-    border-radius: 0;
-    border: none;
     box-shadow: none;
-    display: flex;
-    flex-direction: column;
-  }
-  .status-bar {
-    display: none !important;
   }
 }
 
@@ -150,34 +109,43 @@
   height: 22px;
 }
 
-/* DESKTOP SIDE NAV ADAPTATION */
-.desktop-only {
-  display: none;
-}
+/* DESKTOP WEB ADAPTATION */
 @media (min-width: 900px) {
   .phone {
     flex-direction: row;
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    background: var(--dark);
+  }
+  .screen {
+    flex: 1; /* Ensure content takes remaining space */
+    max-width: none;
   }
   .bottom-nav {
+    order: -1;
     position: static;
     flex-direction: column;
-    width: 280px;
+    width: 260px;
     height: 100vh;
-    padding: 30px 20px;
+    padding: 40px 20px;
     justify-content: flex-start;
-    gap: 16px;
+    gap: 12px;
     border-top: none;
     border-right: 1px solid var(--card-border);
+    margin-top: 0;
+    background: var(--background);
   }
   .nav-item {
     flex-direction: row;
-    font-size: 1rem;
-    padding: 12px 20px;
-    gap: 12px;
+    font-size: 0.95rem;
+    padding: 14px 20px;
+    gap: 14px;
     justify-content: flex-start;
+    border-radius: 14px;
   }
-  .desktop-only {
-    display: block;
+  .nav-item:hover {
+    background: var(--dark3);
   }
 }
 
