@@ -188,6 +188,22 @@ export default function UserProfile() {
               <Briefcase size={18} color="var(--orange)" />
               <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>Seja um Prestador</span>
             </div>
+          ) : profile?.user_type === "provider" ? (
+            <div
+              onClick={() => navigate("/app/provider-availability")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px",
+                borderTop: "1px solid var(--card-border)",
+                cursor: "pointer",
+                background: "rgba(255,165,0,0.05)"
+              }}
+            >
+              <Briefcase size={18} color="var(--orange)" />
+              <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>Configurar Horários</span>
+            </div>
           ) : null}
         </div>
 

@@ -7,10 +7,7 @@ export default function LandingPage() {
     <>
       <LandingNav />
       {/* HERO */}
-      <section
-        className="hero"
-        style={{ paddingTop: "140px", maxWidth: "100%" }}
-      >
+      <section className="hero">
         <div className="hero-bg-glow"></div>
         <div className="hero-badge">Marketplace hiperlocal de serviços</div>
         <h1>
@@ -151,11 +148,7 @@ export default function LandingPage() {
       </section>
 
       {/* DEPOIMENTOS */}
-      <section
-        id="depoimentos"
-        className="landing-section"
-        style={{ background: "var(--dark2)", marginTop: "40px" }}
-      >
+      <section id="depoimentos" className="landing-section testimonials-section">
         <div className="reveal">
           <div className="section-label">Depoimentos</div>
           <h2>
@@ -166,213 +159,48 @@ export default function LandingPage() {
             bairro.
           </p>
         </div>
-        <div
-          className="testimonials-grid reveal"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "20px",
-            marginTop: "40px",
-            padding: "0 20px",
-          }}
-        >
-          <div
-            className="testimonial-card"
-            style={{
-              background: "var(--dark3)",
-              border: "1px solid var(--card-border)",
-              borderRadius: "20px",
-              padding: "24px",
-            }}
-          >
-            <div
-              className="test-stars"
-              style={{ color: "var(--orange)", marginBottom: "12px" }}
-            >
-              ★★★★★
-            </div>
-            <p
-              className="test-text"
-              style={{
-                fontSize: "0.95rem",
-                color: "var(--text)",
-                lineHeight: 1.6,
-                marginBottom: "20px",
-              }}
-            >
+        <div className="testimonials-grid reveal">
+          <div className="testimonial-card">
+            <div className="test-stars">★★★★★</div>
+            <p className="test-text">
               "Achei um encanador excelente em 5 minutos. Ele chegou no horário
               e resolveu o vazamento sem enrolação. Muito prático!"
             </p>
-            <div
-              className="test-author"
-              style={{ display: "flex", alignItems: "center", gap: "12px" }}
-            >
-              <div
-                className="test-avatar"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1a2a1a, #0d1a0d)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.2rem",
-                }}
-              >
-                👩
-              </div>
+            <div className="test-author">
+              <div className="test-avatar">👩</div>
               <div>
-                <div
-                  className="test-name"
-                  style={{
-                    
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Fernanda M.
-                </div>
-                <div
-                  className="test-loc"
-                  style={{ fontSize: "0.75rem", color: "var(--tx3)" }}
-                >
-                  Vila Mariana
-                </div>
+                <div className="test-name">Fernanda M.</div>
+                <div className="test-loc">Vila Mariana</div>
               </div>
             </div>
           </div>
 
-          <div
-            className="testimonial-card"
-            style={{
-              background: "var(--dark3)",
-              border: "1px solid var(--card-border)",
-              borderRadius: "20px",
-              padding: "24px",
-            }}
-          >
-            <div
-              className="test-stars"
-              style={{ color: "var(--orange)", marginBottom: "12px" }}
-            >
-              ★★★★★
-            </div>
-            <p
-              className="test-text"
-              style={{
-                fontSize: "0.95rem",
-                color: "var(--text)",
-                lineHeight: 1.6,
-                marginBottom: "20px",
-              }}
-            >
+          <div className="testimonial-card">
+            <div className="test-stars">★★★★★</div>
+            <p className="test-text">
               "Precisava de uma instalação elétrica urgente e foi super fácil
               agendar. O preço já estava claro, sem sustos no final."
             </p>
-            <div
-              className="test-author"
-              style={{ display: "flex", alignItems: "center", gap: "12px" }}
-            >
-              <div
-                className="test-avatar"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1a1a2a, #0d0d1a)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.2rem",
-                }}
-              >
-                👨
-              </div>
+            <div className="test-author">
+              <div className="test-avatar">👨</div>
               <div>
-                <div
-                  className="test-name"
-                  style={{
-                    
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Ricardo S.
-                </div>
-                <div
-                  className="test-loc"
-                  style={{ fontSize: "0.75rem", color: "var(--tx3)" }}
-                >
-                  Pinheiros
-                </div>
+                <div className="test-name">Ricardo S.</div>
+                <div className="test-loc">Pinheiros</div>
               </div>
             </div>
           </div>
 
-          <div
-            className="testimonial-card"
-            style={{
-              background: "var(--dark3)",
-              border: "1px solid var(--card-border)",
-              borderRadius: "20px",
-              padding: "24px",
-            }}
-          >
-            <div
-              className="test-stars"
-              style={{ color: "var(--orange)", marginBottom: "12px" }}
-            >
-              ★★★★★
-            </div>
-            <p
-              className="test-text"
-              style={{
-                fontSize: "0.95rem",
-                color: "var(--text)",
-                lineHeight: 1.6,
-                marginBottom: "20px",
-              }}
-            >
+          <div className="testimonial-card">
+            <div className="test-stars">★★★★★</div>
+            <p className="test-text">
               "Gostei muito da experiência de ver as avaliações do profissional
               antes de fechar. Tive zero dor de cabeça com a limpeza pós-obra."
             </p>
-            <div
-              className="test-author"
-              style={{ display: "flex", alignItems: "center", gap: "12px" }}
-            >
-              <div
-                className="test-avatar"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #2a1a1a, #1a0d0d)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.2rem",
-                }}
-              >
-                🧑
-              </div>
+            <div className="test-author">
+              <div className="test-avatar">🧑</div>
               <div>
-                <div
-                  className="test-name"
-                  style={{
-                    
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Juliana T.
-                </div>
-                <div
-                  className="test-loc"
-                  style={{ fontSize: "0.75rem", color: "var(--tx3)" }}
-                >
-                  Moema
-                </div>
+                <div className="test-name">Juliana T.</div>
+                <div className="test-loc">Moema</div>
               </div>
             </div>
           </div>

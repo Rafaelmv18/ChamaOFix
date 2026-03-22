@@ -11,6 +11,7 @@ export default function Booking() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [description, setDescription] = useState("");
+  const [existingBookings, setExistingBookings] = useState<any[]>([]);
 
   const [selectedDate, setSelectedDate] = useState<number | null>(
     new Date().getDate(),
@@ -38,6 +39,16 @@ export default function Booking() {
           .single();
         if (error) throw error;
         setPro(data);
+
+        // Fetch existing bookings to block out unavailable times
+        const { data: bookingsData } = await supabase
+          .from("bookings")
+          .select("date")
+          .eq("professional_id", id);
+          
+        if (bookingsData) {
+          setExistingBookings(bookingsData);
+        }
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -50,12 +61,25 @@ export default function Booking() {
   const currentMonthDays = Array.from({ length: 30 }, (_, i) => i + 1);
 
   const getTimesForDate = (date: number | null) => {
-    if (!date) return [];
-    if (date % 2 === 0) {
-      return ["09:00", "10:00 (Ocupado)", "13:00", "15:30"];
-    } else {
-      return ["11:30", "14:00 (Ocupado)", "16:00", "17:30"];
-    }
+    if (!date || !pro) return [];
+    
+    // Determine the day of the week (0 = Sunday, 1 = Monday...)
+    const now = new Date();
+    const probeDate = new Date(now.getFullYear(), now.getMonth(), date);
+    const dayOfWeek = probeDate.getDay().toString();
+    
+    const providerAvail = pro.availability || {};
+    const daySlots: string[] = providerAvail[dayOfWeek] || [];
+    
+    if (daySlots.length === 0) return [];
+
+    // Find out which slots are already booked on this exact day
+    const datePrefix = `${date}/${now.getMonth() + 1}, `;
+    const bookedTimes = existingBookings
+      .filter((b: any) => b.date && b.date.startsWith(datePrefix))
+      .map((b: any) => b.date.split(", ")[1]);
+
+    return daySlots.map(time => bookedTimes.includes(time) ? `${time} (Ocupado)` : time);
   };
 
   const times = getTimesForDate(selectedDate);
@@ -173,6 +197,11 @@ export default function Booking() {
         <div className="form-group" style={{ marginBottom: "20px" }}>
           <label className="form-label" style={{ fontSize: "0.78rem", color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px", display: "block" }}>Horário</label>
           <div className="times-row" style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {times.length === 0 && (
+              <div style={{ fontSize: "0.85rem", color: "var(--tx3)", padding: "8px 0", fontStyle: "italic" }}>
+                Nenhum horário disponível para esta data.
+              </div>
+            )}
             {times.map((time) => {
               const isOccupied = time.includes("(Ocupado)");
               const displayTime = time.replace(" (Ocupado)", "");
